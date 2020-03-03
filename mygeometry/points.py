@@ -2,14 +2,15 @@
 
 import sympy as sym
 
-from mymodules.numbers.numbers import get_n_primes
-
 
 class Point:
 
     def __init__(self, *coordinates, **kwargs):
         self._coordinates = self.convert_coordinates(coordinates)
-        self._constrains = tuple(kwargs.get('constrains') or [])
+        constrains = kwargs.get('constrains')
+        if callable(constrains):
+            constrains = (constrains, )
+        self._constrains = tuple(constrains or [])
         for constrain in self._constrains:
             constrain(self)
 
@@ -137,5 +138,5 @@ class Point:
         return self.distance(Point(), p)
 
     def to_vector(self):
-        from mymodules.geometry.vectors import Vector
+        from mymodules.mygeometry.vectors import Vector
         return Vector(*self._coordinates, constrains=self._constrains)
