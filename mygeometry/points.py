@@ -11,8 +11,7 @@ class Point:
         if callable(constrains):
             constrains = (constrains, )
         self._constrains = tuple(constrains or [])
-        for constrain in self._constrains:
-            constrain(self)
+        self.check_constrains()
 
     def get_constrains(self):
         return self._constrains
@@ -25,9 +24,11 @@ class Point:
 
     def set_constrains(self, constrains):
         self._constrains += tuple([c for c in constrains])
+        self.check_constrains()
 
     def set_coordinates(self, coordinates):
         self._coordinates = self.convert_coordinates(coordinates)
+        self.check_constrains()
 
     constrains = property(get_constrains, set_constrains)
     coordinates = property(get_coordinates, set_coordinates)
@@ -89,18 +90,17 @@ class Point:
     __rsub__ = __sub__
     __str__ = __repr__
 
+    def check_constrains(self):
+        for constrain in getattr(self, '_constrains', ()):
+            constrain(self)
+
     def convert_coordinates(self, coordinates):
         """
         Converts `False`, `None`, etc to zeros, checks whether every coordinate
         fits its relative constrain (if there's any).
         :return: list of coordinates
         """
-        coordinates = tuple([v if v else 0 for v in coordinates])
-        # `convert_coordinates` is called from `__init__`, when `_constrains`
-        # attribute is still not initialized
-        for constrain in getattr(self, '_constrains', ()):
-            constrain(self)
-        return coordinates
+        return tuple([v if v else 0 for v in coordinates])
 
     def distance(self, other, p=2):
         """
