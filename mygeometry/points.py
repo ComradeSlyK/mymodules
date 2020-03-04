@@ -7,10 +7,7 @@ class Point:
 
     def __init__(self, *coordinates, **kwargs):
         self._coordinates = self.convert_coordinates(coordinates)
-        constrains = kwargs.get('constrains')
-        if callable(constrains):
-            constrains = (constrains, )
-        self._constrains = tuple(constrains or [])
+        self._constrains = self.convert_constrains(kwargs.get('constrains'))
         self.check_constrains()
 
     def get_constrains(self):
@@ -23,7 +20,7 @@ class Point:
         return len(self._coordinates)
 
     def set_constrains(self, constrains):
-        self._constrains += tuple([c for c in constrains])
+        self._constrains += self.convert_constrains(constrains)
         self.check_constrains()
 
     def set_coordinates(self, coordinates):
@@ -93,6 +90,11 @@ class Point:
     def check_constrains(self):
         for constrain in getattr(self, '_constrains', ()):
             constrain(self)
+
+    def convert_constrains(self, constrains):
+        if callable(constrains):
+            constrains = (constrains, )
+        return tuple(constrains or [])
 
     def convert_coordinates(self, coordinates):
         """
