@@ -8,7 +8,7 @@ class Point:
     def __init__(self, *coordinates, **kwargs):
         self._coordinates = self.convert_coordinates(coordinates)
         self._constrains = self.convert_constrains(kwargs.get('constrains'))
-        self.check_constrains()
+        self.run_constrains()
 
     def get_constrains(self):
         return self._constrains
@@ -21,11 +21,11 @@ class Point:
 
     def set_constrains(self, constrains):
         self._constrains += self.convert_constrains(constrains)
-        self.check_constrains()
+        self.run_constrains()
 
     def set_coordinates(self, coordinates):
         self._coordinates = self.convert_coordinates(coordinates)
-        self.check_constrains()
+        self.run_constrains()
 
     constrains = property(get_constrains, set_constrains)
     coordinates = property(get_coordinates, set_coordinates)
@@ -87,11 +87,8 @@ class Point:
     __rsub__ = __sub__
     __str__ = __repr__
 
-    def check_constrains(self):
-        for constrain in getattr(self, '_constrains', ()):
-            constrain(self)
-
     def convert_constrains(self, constrains):
+        """ Converts `constrains` into a tuple of methods """
         if callable(constrains):
             constrains = (constrains, )
         return tuple(constrains or [])
@@ -138,6 +135,10 @@ class Point:
 
     def get_norm(self, p=2):
         return self.distance(Point(), p)
+
+    def run_constrains(self):
+        for constrain in self._constrains:
+            constrain(self)
 
     def to_vector(self):
         from mymodules.mygeometry.vectors import Vector
